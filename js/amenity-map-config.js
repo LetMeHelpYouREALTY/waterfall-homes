@@ -15,7 +15,6 @@
       addressLine: "4063 Lower Saxon Ave, North Las Vegas, NV 89085",
     },
     searchRadiusMeters: 8000,
-    /** Family community — schools included; not age-restricted or high-rise. */
     categoryOrder: [
       "restaurants",
       "cafes",
@@ -86,7 +85,6 @@
         primaryTypes: ["school", "primary_school", "secondary_school"],
       },
     },
-    /** Verified nearby places for fallback list and ItemList schema (no invented ratings). */
     curatedPlaces: [
       {
         id: "smiths-aliante",
@@ -94,6 +92,7 @@
         type: "GroceryStore",
         category: "grocery",
         address: "6855 Aliante Pkwy, North Las Vegas, NV 89084",
+        sourceUrl: "https://www.smithsfoodanddrug.com/",
       },
       {
         id: "albertsons-ann",
@@ -101,6 +100,8 @@
         type: "GroceryStore",
         category: "grocery",
         address: "3010 W Ann Rd, North Las Vegas, NV 89031",
+        sourceUrl:
+          "https://local.albertsons.com/nv/north-las-vegas/3010-w-ann-rd.html",
       },
       {
         id: "aliante-casino",
@@ -108,6 +109,7 @@
         type: "EntertainmentBusiness",
         category: "restaurants",
         address: "7300 Aliante Pkwy, North Las Vegas, NV 89084",
+        sourceUrl: "https://www.aliantegaming.com/",
       },
       {
         id: "aliante-nature-park",
@@ -115,13 +117,16 @@
         type: "Park",
         category: "parks",
         address: "2627 Nature Park Dr, North Las Vegas, NV 89084",
+        sourceUrl:
+          "https://www.cityofnorthlasvegas.com/Home/Components/FacilityDirectory/FacilityDirectory/73/777",
       },
       {
         id: "aliante-golf",
         name: "Aliante Golf Club",
         type: "GolfCourse",
         category: "golf",
-        address: "7101 Aliante Pkwy, North Las Vegas, NV 89084",
+        address: "3100 W Elkhorn Rd, North Las Vegas, NV 89084",
+        sourceUrl: "https://www.aliantegolf.com/",
       },
       {
         id: "centennial-hills-hospital",
@@ -129,27 +134,7 @@
         type: "Hospital",
         category: "healthcare",
         address: "6900 N Durango Dr, Las Vegas, NV 89149",
-      },
-      {
-        id: "triggs-elementary",
-        name: "Triggs Elementary School",
-        type: "School",
-        category: "schools",
-        address: "7330 W Gowan Rd, Las Vegas, NV 89129",
-      },
-      {
-        id: "cadwallader-middle",
-        name: "Cadwallader Middle School",
-        type: "School",
-        category: "schools",
-        address: "7457 W Azure Dr, Las Vegas, NV 89128",
-      },
-      {
-        id: "canyon-springs-high",
-        name: "Canyon Springs High School",
-        type: "School",
-        category: "schools",
-        address: "350 E Alexander Rd, North Las Vegas, NV 89032",
+        sourceUrl: "https://www.centennialhillshospital.com/",
       },
     ],
   };

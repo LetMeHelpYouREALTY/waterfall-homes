@@ -1,8 +1,15 @@
 (function () {
   "use strict";
 
-  var LOADED_GOOGLE = false;
-  var GOOGLE_PROMISE = null;
+  var mapsReady = null;
+  var mapsAuthFailed = false;
+  var categorySearchCache = new Map();
+
+  if (typeof window !== "undefined") {
+    window.addEventListener("gmaps:auth-failure", function () {
+      mapsAuthFailed = true;
+    });
+  }
 
   function getApiKey() {
     var meta = document.querySelector('meta[name="google-maps-api-key"]');
@@ -56,23 +63,40 @@
       filtered = places.slice(0, 6);
     }
 
-    var html =
-      '<div class="amenity-map-static-list"><h3>Featured nearby places</h3><ul>';
+    var wrap = document.createElement("div");
+    wrap.className = "amenity-map-static-list";
+    var heading = document.createElement("h3");
+    heading.textContent = "Featured places near Waterfall";
+    wrap.appendChild(heading);
+
+    var ul = document.createElement("ul");
     filtered.forEach(function (place) {
-      html +=
-        "<li><span class=\"place-name\">" +
-        escapeHtml(place.name) +
-        "</span><br><span class=\"place-meta\">" +
-        escapeHtml(place.address) +
-        ' · <a href="' +
-        directionsUrl(place.name, place.address) +
-        '" target="_blank" rel="noopener noreferrer">Directions</a></span></li>';
+      var li = document.createElement("li");
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "place-name";
+      nameSpan.textContent = place.name;
+      li.appendChild(nameSpan);
+      li.appendChild(document.createElement("br"));
+      var metaSpan = document.createElement("span");
+      metaSpan.className = "place-meta";
+      if (place.address) {
+        metaSpan.appendChild(document.createTextNode(place.address + " · "));
+      }
+      var dirLink = document.createElement("a");
+      dirLink.href = directionsUrl(place.name, place.address || "");
+      dirLink.target = "_blank";
+      dirLink.rel = "noopener noreferrer";
+      dirLink.textContent = "Directions";
+      metaSpan.appendChild(dirLink);
+      li.appendChild(metaSpan);
+      ul.appendChild(li);
     });
-    html += "</ul></div>";
-    container.insertAdjacentHTML("beforeend", html);
+    wrap.appendChild(ul);
+    container.appendChild(wrap);
   }
 
   function renderFallbackMap(wrap, config) {
+    wrap.innerHTML = "";
     var c = config.community.center;
     var iframe = document.createElement("iframe");
     iframe.className = "amenity-map-fallback-iframe";
@@ -84,30 +108,73 @@
   }
 
   function loadGoogleMaps(apiKey) {
-    if (LOADED_GOOGLE && window.google && window.google.maps) {
-      return Promise.resolve(window.google.maps);
+    if (typeof window === "undefined") {
+      return Promise.reject(new Error("ssr"));
     }
-    if (GOOGLE_PROMISE) return GOOGLE_PROMISE;
+    if (
+      typeof window.google !== "undefined" &&
+      window.google.maps &&
+      typeof window.google.maps.importLibrary === "function"
+    ) {
+      return Promise.resolve();
+    }
+    if (mapsReady) return mapsReady;
 
-    GOOGLE_PROMISE = new Promise(function (resolve, reject) {
-      var script = document.createElement("script");
-      script.async = true;
-      script.defer = true;
-      script.src =
+    mapsReady = new Promise(function (resolve, reject) {
+      var cb = "__gmapsReady";
+      window[cb] = function () {
+        resolve();
+      };
+      window.gm_authFailure = function () {
+        mapsAuthFailed = true;
+        window.dispatchEvent(new Event("gmaps:auth-failure"));
+        mapsReady = null;
+        reject(new Error("gm_authFailure"));
+      };
+      var s = document.createElement("script");
+      s.src =
         "https://maps.googleapis.com/maps/api/js?key=" +
         encodeURIComponent(apiKey) +
-        "&loading=async&libraries=places&callback=__waterfallMapsInit";
-      window.__waterfallMapsInit = function () {
-        LOADED_GOOGLE = true;
-        resolve(window.google.maps);
+        "&v=weekly&loading=async&callback=" +
+        cb;
+      s.async = true;
+      s.onerror = function () {
+        mapsReady = null;
+        reject(new Error("maps script failed"));
       };
-      script.onerror = function () {
-        reject(new Error("Google Maps script failed to load"));
-      };
-      document.head.appendChild(script);
+      document.head.appendChild(s);
     });
 
-    return GOOGLE_PROMISE;
+    return mapsReady;
+  }
+
+  function searchCategory(center, categoryId, types, radiusMeters) {
+    var existing = categorySearchCache.get(categoryId);
+    if (existing) return existing;
+
+    var promise = (async function () {
+      var placesLib = await google.maps.importLibrary("places");
+      var Place = placesLib.Place;
+      var result = await Place.searchNearby({
+        fields: [
+          "displayName",
+          "location",
+          "formattedAddress",
+          "googleMapsURI",
+        ],
+        locationRestriction: { center: center, radius: radiusMeters },
+        includedPrimaryTypes: types,
+        maxResultCount: 10,
+        rankPreference: "POPULARITY",
+      });
+      return result && result.places ? result.places : [];
+    })();
+
+    promise.catch(function () {
+      categorySearchCache.delete(categoryId);
+    });
+    categorySearchCache.set(categoryId, promise);
+    return promise;
   }
 
   function buildFilterUi(root, config, onSelect) {
@@ -163,112 +230,50 @@
     return place.name || "Place";
   }
 
-  function openInfoContent(place) {
+  function buildInfoWindowContent(place) {
     var name = placeDisplayName(place);
     var address = place.formattedAddress || place.address || "";
-    var rating =
-      place.rating != null ? " · Rating: " + place.rating + "/5" : "";
     var dir = directionsUrl(name, address);
-    return (
-      "<div style=\"max-width:240px;font-family:sans-serif;font-size:14px;line-height:1.4\">" +
-      "<strong>" +
-      escapeHtml(name) +
-      "</strong>" +
-      (address
-        ? "<br>" + escapeHtml(address) + escapeHtml(rating)
-        : escapeHtml(rating)) +
-      '<br><a href="' +
-      dir +
-      '" target="_blank" rel="noopener noreferrer">Directions</a>' +
-      "</div>"
-    );
-  }
 
-  async function searchCategory(maps, Place, config, categoryKey) {
-    var cat = config.categories[categoryKey];
-    if (!cat) return [];
-    var center = config.community.center;
-    var all = [];
-    var types = cat.primaryTypes || [];
+    var wrap = document.createElement("div");
+    wrap.style.cssText =
+      "max-width:240px;font-family:sans-serif;font-size:14px;line-height:1.4";
 
-    for (var i = 0; i < types.length; i++) {
-      try {
-        var request = {
-          fields: [
-            "displayName",
-            "location",
-            "formattedAddress",
-            "rating",
-            "googleMapsURI",
-          ],
-          locationRestriction: {
-            center: { lat: center.lat, lng: center.lng },
-            radius: config.searchRadiusMeters,
-          },
-          includedPrimaryTypes: [types[i]],
-          maxResultCount: 12,
-          rankPreference: "DISTANCE",
-        };
-        var result = await Place.searchNearby(request);
-        if (result && result.places) {
-          all = all.concat(result.places);
-        }
-      } catch (_err) {
-        /* try next type or legacy fallback below */
-      }
+    var strong = document.createElement("strong");
+    strong.textContent = name;
+    wrap.appendChild(strong);
+
+    if (address) {
+      wrap.appendChild(document.createElement("br"));
+      wrap.appendChild(document.createTextNode(address));
     }
 
-    if (all.length) return all;
+    wrap.appendChild(document.createElement("br"));
+    var link = document.createElement("a");
+    link.href = dir;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "Directions";
+    wrap.appendChild(link);
 
-    return legacyNearbySearch(maps, center, types);
+    return wrap;
   }
 
-  function legacyNearbySearch(maps, center, types) {
-    return new Promise(function (resolve) {
-      if (!maps.places || !maps.places.PlacesService) {
-        resolve([]);
-        return;
-      }
-      var div = document.createElement("div");
-      var service = new maps.places.PlacesService(div);
-      var type = types[0] || "restaurant";
-      service.nearbySearch(
-        {
-          location: new maps.LatLng(center.lat, center.lng),
-          radius: 8000,
-          type: type,
-        },
-        function (results, status) {
-          if (
-            status === maps.places.PlacesServiceStatus.OK &&
-            results &&
-            results.length
-          ) {
-            resolve(
-              results.map(function (r) {
-                return {
-                  displayName: r.name,
-                  name: r.name,
-                  formattedAddress: r.vicinity,
-                  address: r.vicinity,
-                  rating: r.rating,
-                  location: r.geometry && r.geometry.location,
-                  legacy: true,
-                };
-              })
-            );
-          } else {
-            resolve([]);
-          }
-        }
-      );
-    });
+  function placeLatLng(place) {
+    var loc = place.location;
+    if (!loc) return null;
+    if (typeof loc.lat === "function") {
+      return { lat: loc.lat(), lng: loc.lng() };
+    }
+    if (loc.lat != null && loc.lng != null) {
+      return { lat: loc.lat, lng: loc.lng };
+    }
+    return null;
   }
 
-  async function initInteractiveMap(root, config, apiKey) {
-    var maps = await loadGoogleMaps(apiKey);
+  function initInteractiveMap(root, config, apiKey) {
     var mapWrap = root.querySelector(".amenity-map-canvas-wrap");
-    if (!mapWrap) return;
+    if (!mapWrap) return Promise.resolve();
 
     var statusEl = document.createElement("div");
     statusEl.className = "amenity-map-status";
@@ -280,131 +285,206 @@
     mapEl.id = "am-panel-" + root.dataset.instanceId;
     mapWrap.appendChild(mapEl);
 
-    var mapId = getMapId();
-    var mapOptions = {
-      center: config.community.center,
-      zoom: 13,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: true,
-    };
-    if (mapId) mapOptions.mapId = mapId;
-
-    var MapCtor = maps.Map;
-    var map = new MapCtor(mapEl, mapOptions);
     var markers = [];
-    var infoWindow = new maps.InfoWindow();
+    var map = null;
+    var infoWindow = null;
+    var inFallback = false;
+    var activeCategory = config.categoryOrder[0];
+    var authListener = null;
 
-    function addCommunityMarker() {
-      var pos = config.community.center;
-      if (mapId && maps.marker && maps.marker.AdvancedMarkerElement) {
-        var pin = document.createElement("div");
-        pin.textContent = "★ " + config.community.markerLabel;
-        pin.style.cssText =
-          "background:#1e3a5f;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap";
-        new maps.marker.AdvancedMarkerElement({
-          map: map,
-          position: pos,
-          title: config.community.markerLabel,
-          content: pin,
-        });
-      } else {
-        new maps.Marker({
-          map: map,
-          position: pos,
-          title: config.community.markerLabel,
-          label: { text: "W", color: "white", fontWeight: "700" },
-        });
-      }
-    }
-
-    addCommunityMarker();
-
-    root.appendChild(statusEl);
-
-    async function showCategory(categoryKey) {
-      statusEl.textContent = "Loading nearby places…";
-      clearMarkers(markers);
+    function clearStaticLists() {
       root.querySelectorAll(".amenity-map-static-list").forEach(function (el) {
         el.remove();
       });
-
-      var PlaceLib = null;
-      try {
-        PlaceLib = await maps.importLibrary("places");
-      } catch (_e) {
-        PlaceLib = null;
-      }
-
-      var places = [];
-      if (PlaceLib && PlaceLib.Place) {
-        places = await searchCategory(maps, PlaceLib.Place, config, categoryKey);
-      } else {
-        var cat = config.categories[categoryKey];
-        places = await legacyNearbySearch(
-          maps,
-          config.community.center,
-          cat ? cat.primaryTypes : ["restaurant"]
-        );
-      }
-
-      if (!places.length) {
-        statusEl.textContent =
-          "No results for this category. See featured places below or open the full amenities page.";
-        renderStaticList(root, config.curatedPlaces, categoryKey);
-        return;
-      }
-
-      statusEl.textContent =
-        places.length + " places shown (approximate distance from Waterfall).";
-
-      places.forEach(function (place) {
-        var loc = place.location;
-        var latLng;
-        if (loc && typeof loc.lat === "function") {
-          latLng = { lat: loc.lat(), lng: loc.lng() };
-        } else if (loc && loc.lat != null) {
-          latLng = { lat: loc.lat, lng: loc.lng };
-        } else {
-          return;
-        }
-
-        var marker;
-        if (mapId && maps.marker && maps.marker.AdvancedMarkerElement) {
-          marker = new maps.marker.AdvancedMarkerElement({
-            map: map,
-            position: latLng,
-            title: place.displayName || place.name,
-          });
-          marker.addListener("click", function () {
-            infoWindow.setContent(openInfoContent(place));
-            infoWindow.open({ anchor: marker, map: map });
-          });
-        } else {
-          marker = new maps.Marker({
-            map: map,
-            position: latLng,
-            title: place.displayName || place.name,
-          });
-          marker.addListener("click", function () {
-            infoWindow.setContent(openInfoContent(place));
-            infoWindow.open(map, marker);
-          });
-        }
-        markers.push(marker);
-      });
-
-      if (markers.length === 1 && markers[0].position) {
-        map.setCenter(markers[0].position);
-      }
     }
 
-    buildFilterUi(root, config, showCategory);
+    function enterFallback(categoryKey) {
+      if (inFallback) {
+        clearStaticLists();
+        renderStaticList(root, config.curatedPlaces, categoryKey || activeCategory);
+        return;
+      }
+      inFallback = true;
+      clearMarkers(markers);
+      if (infoWindow) infoWindow.close();
+      if (mapEl.parentNode) mapEl.parentNode.removeChild(mapEl);
+      renderFallbackMap(mapWrap, config);
+      clearStaticLists();
+      renderStaticList(root, config.curatedPlaces, categoryKey || activeCategory);
+      statusEl.textContent =
+        "Showing map preview and featured places near Waterfall.";
+    }
+
+    function onAuthFailure() {
+      enterFallback(activeCategory);
+    }
+
+    authListener = onAuthFailure;
+    window.addEventListener("gmaps:auth-failure", authListener);
+
+    if (mapsAuthFailed) {
+      buildFilterUi(root, config, function (key) {
+        activeCategory = key;
+        clearStaticLists();
+        renderStaticList(root, config.curatedPlaces, key);
+      });
+      var filtersEarly = root.querySelector(".amenity-map-filters");
+      if (filtersEarly && mapWrap.parentNode === root) {
+        root.insertBefore(filtersEarly, mapWrap);
+      }
+      enterFallback(activeCategory);
+      root.appendChild(statusEl);
+      return Promise.resolve();
+    }
+
+    return loadGoogleMaps(apiKey)
+      .then(function () {
+        if (mapsAuthFailed) {
+          throw new Error("gm_authFailure");
+        }
+        var maps = window.google.maps;
+        var mapId = getMapId();
+        var mapOptions = {
+          center: config.community.center,
+          zoom: 13,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        };
+        if (mapId) mapOptions.mapId = mapId;
+
+        map = new maps.Map(mapEl, mapOptions);
+        infoWindow = new maps.InfoWindow();
+
+        function addCommunityMarker() {
+          var pos = config.community.center;
+          if (mapId && maps.marker && maps.marker.AdvancedMarkerElement) {
+            var pin = document.createElement("div");
+            pin.textContent = "★ " + config.community.markerLabel;
+            pin.style.cssText =
+              "background:#1e3a5f;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap";
+            new maps.marker.AdvancedMarkerElement({
+              map: map,
+              position: pos,
+              title: config.community.markerLabel,
+              content: pin,
+            });
+          } else {
+            new maps.Marker({
+              map: map,
+              position: pos,
+              title: config.community.markerLabel,
+              label: { text: "W", color: "white", fontWeight: "700" },
+            });
+          }
+        }
+
+        addCommunityMarker();
+        root.appendChild(statusEl);
+
+        function showCategory(categoryKey) {
+          if (inFallback || mapsAuthFailed) {
+            activeCategory = categoryKey;
+            clearStaticLists();
+            renderStaticList(root, config.curatedPlaces, categoryKey);
+            return;
+          }
+
+          activeCategory = categoryKey;
+          statusEl.textContent = "Loading nearby places…";
+          clearMarkers(markers);
+          clearStaticLists();
+
+          var cat = config.categories[categoryKey];
+          if (!cat) return;
+
+          searchCategory(
+            config.community.center,
+            categoryKey,
+            cat.primaryTypes || [],
+            config.searchRadiusMeters
+          )
+            .then(function (places) {
+              if (inFallback || mapsAuthFailed) return;
+
+              if (!places.length) {
+                statusEl.textContent =
+                  "No live results for this category. See featured places below.";
+                renderStaticList(root, config.curatedPlaces, categoryKey);
+                return;
+              }
+
+              statusEl.textContent =
+                places.length + " places shown (approximate distance from Waterfall).";
+
+              places.forEach(function (place) {
+                var latLng = placeLatLng(place);
+                if (!latLng) return;
+
+                var marker;
+                var title = placeDisplayName(place);
+                if (mapId && maps.marker && maps.marker.AdvancedMarkerElement) {
+                  marker = new maps.marker.AdvancedMarkerElement({
+                    map: map,
+                    position: latLng,
+                    title: title,
+                  });
+                  marker.addListener("click", function () {
+                    infoWindow.setContent(buildInfoWindowContent(place));
+                    infoWindow.open({ anchor: marker, map: map });
+                  });
+                } else {
+                  marker = new maps.Marker({
+                    map: map,
+                    position: latLng,
+                    title: title,
+                  });
+                  marker.addListener("click", function () {
+                    infoWindow.setContent(buildInfoWindowContent(place));
+                    infoWindow.open(map, marker);
+                  });
+                }
+                markers.push(marker);
+              });
+            })
+            .catch(function () {
+              if (inFallback || mapsAuthFailed) return;
+              statusEl.textContent =
+                "Could not load live results. Showing featured places for this category.";
+              renderStaticList(root, config.curatedPlaces, categoryKey);
+            });
+        }
+
+        buildFilterUi(root, config, showCategory);
+        var filters = root.querySelector(".amenity-map-filters");
+        if (filters && mapWrap.parentNode === root) {
+          root.insertBefore(filters, mapWrap);
+        }
+        showCategory(config.categoryOrder[0]);
+      })
+      .catch(function () {
+        enterFallback(activeCategory);
+        if (!root.contains(statusEl)) root.appendChild(statusEl);
+      });
+  }
+
+  function initNoKeyExperience(root, config, mapWrap) {
+    buildFilterUi(root, config, function (categoryKey) {
+      root.querySelectorAll(".amenity-map-static-list").forEach(function (el) {
+        el.remove();
+      });
+      renderStaticList(root, config.curatedPlaces, categoryKey);
+    });
     var filters = root.querySelector(".amenity-map-filters");
     if (filters && mapWrap.parentNode === root) {
       root.insertBefore(filters, mapWrap);
     }
-    await showCategory(config.categoryOrder[0]);
+    renderFallbackMap(mapWrap, config);
+    renderStaticList(root, config.curatedPlaces, config.categoryOrder[0]);
+    var note = document.createElement("div");
+    note.className = "amenity-map-status";
+    note.textContent = "Featured places near Waterfall.";
+    root.appendChild(note);
   }
 
   function initRoot(root) {
@@ -428,35 +508,21 @@
 
     var apiKey = getApiKey();
 
-    if (!apiKey) {
-      buildFilterUi(root, config, function (categoryKey) {
-        root.querySelectorAll(".amenity-map-static-list").forEach(function (el) {
-          el.remove();
-        });
-        renderStaticList(root, config.curatedPlaces, categoryKey);
-      });
-      var filters = root.querySelector(".amenity-map-filters");
-      if (filters && mapWrap.parentNode === root) {
-        root.insertBefore(filters, mapWrap);
-      }
-      renderFallbackMap(mapWrap, config);
-      renderStaticList(root, config.curatedPlaces, config.categoryOrder[0]);
-      var note = document.createElement("div");
-      note.className = "amenity-map-status";
-      note.textContent =
-        "Interactive map loads when PUBLIC_GOOGLE_MAPS_API_KEY is configured. Showing map preview and featured places.";
-      root.appendChild(note);
+    if (!apiKey || mapsAuthFailed) {
+      initNoKeyExperience(root, config, mapWrap);
       return;
     }
 
     initInteractiveMap(root, config, apiKey).catch(function () {
       mapWrap.innerHTML = "";
       renderFallbackMap(mapWrap, config);
+      root.querySelectorAll(".amenity-map-static-list").forEach(function (el) {
+        el.remove();
+      });
       renderStaticList(root, config.curatedPlaces, null);
       var errNote = document.createElement("div");
       errNote.className = "amenity-map-status";
-      errNote.textContent =
-        "Could not load Google Maps. Showing preview map and featured places.";
+      errNote.textContent = "Featured places near Waterfall.";
       root.appendChild(errNote);
     });
   }

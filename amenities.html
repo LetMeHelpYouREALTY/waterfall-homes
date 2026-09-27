@@ -98,15 +98,12 @@
       "@type": "ItemList",
       "name": "Featured places near Waterfall, North Las Vegas",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "item": { "@type": "GroceryStore", "name": "Smith's Food and Drug", "address": { "@type": "PostalAddress", "streetAddress": "6855 Aliante Pkwy", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
-        { "@type": "ListItem", "position": 2, "item": { "@type": "GroceryStore", "name": "Albertsons", "address": { "@type": "PostalAddress", "streetAddress": "3010 W Ann Rd", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89031" } } },
-        { "@type": "ListItem", "position": 3, "item": { "@type": "Restaurant", "name": "Aliante Casino + Hotel", "address": { "@type": "PostalAddress", "streetAddress": "7300 Aliante Pkwy", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
-        { "@type": "ListItem", "position": 4, "item": { "@type": "Park", "name": "Aliante Nature Discovery Park", "address": { "@type": "PostalAddress", "streetAddress": "2627 Nature Park Dr", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
-        { "@type": "ListItem", "position": 5, "item": { "@type": "GolfCourse", "name": "Aliante Golf Club", "address": { "@type": "PostalAddress", "streetAddress": "7101 Aliante Pkwy", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
-        { "@type": "ListItem", "position": 6, "item": { "@type": "Hospital", "name": "Centennial Hills Hospital Medical Center", "address": { "@type": "PostalAddress", "streetAddress": "6900 N Durango Dr", "addressLocality": "Las Vegas", "addressRegion": "NV", "postalCode": "89149" } } },
-        { "@type": "ListItem", "position": 7, "item": { "@type": "School", "name": "Triggs Elementary School", "address": { "@type": "PostalAddress", "streetAddress": "7330 W Gowan Rd", "addressLocality": "Las Vegas", "addressRegion": "NV", "postalCode": "89129" } } },
-        { "@type": "ListItem", "position": 8, "item": { "@type": "School", "name": "Cadwallader Middle School", "address": { "@type": "PostalAddress", "streetAddress": "7457 W Azure Dr", "addressLocality": "Las Vegas", "addressRegion": "NV", "postalCode": "89128" } } },
-        { "@type": "ListItem", "position": 9, "item": { "@type": "School", "name": "Canyon Springs High School", "address": { "@type": "PostalAddress", "streetAddress": "350 E Alexander Rd", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89032" } } }
+        { "@type": "ListItem", "position": 1, "item": { "@type": "GroceryStore", "name": "Smith's Food and Drug", "url": "https://www.smithsfoodanddrug.com/", "address": { "@type": "PostalAddress", "streetAddress": "6855 Aliante Pkwy", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
+        { "@type": "ListItem", "position": 2, "item": { "@type": "GroceryStore", "name": "Albertsons", "url": "https://local.albertsons.com/nv/north-las-vegas/3010-w-ann-rd.html", "address": { "@type": "PostalAddress", "streetAddress": "3010 W Ann Rd", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89031" } } },
+        { "@type": "ListItem", "position": 3, "item": { "@type": "Restaurant", "name": "Aliante Casino + Hotel", "url": "https://www.aliantegaming.com/", "address": { "@type": "PostalAddress", "streetAddress": "7300 Aliante Pkwy", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
+        { "@type": "ListItem", "position": 4, "item": { "@type": "Park", "name": "Aliante Nature Discovery Park", "url": "https://www.cityofnorthlasvegas.com/Home/Components/FacilityDirectory/FacilityDirectory/73/777", "address": { "@type": "PostalAddress", "streetAddress": "2627 Nature Park Dr", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
+        { "@type": "ListItem", "position": 5, "item": { "@type": "GolfCourse", "name": "Aliante Golf Club", "url": "https://www.aliantegolf.com/", "address": { "@type": "PostalAddress", "streetAddress": "3100 W Elkhorn Rd", "addressLocality": "North Las Vegas", "addressRegion": "NV", "postalCode": "89084" } } },
+        { "@type": "ListItem", "position": 6, "item": { "@type": "Hospital", "name": "Centennial Hills Hospital Medical Center", "url": "https://www.centennialhillshospital.com/", "address": { "@type": "PostalAddress", "streetAddress": "6900 N Durango Dr", "addressLocality": "Las Vegas", "addressRegion": "NV", "postalCode": "89149" } } }
       ]
     }
     </script>
@@ -158,10 +155,10 @@
         },
         {
           "@type": "Question",
-          "name": "What schools serve Waterfall?",
+          "name": "Which CCSD schools are assigned to Waterfall addresses?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Waterfall is commonly associated with Triggs Elementary School, Cadwallader Middle School, and Canyon Springs High School in the Clark County School District; confirm zoning for a specific address."
+            "text": "School assignments in Clark County School District depend on your exact Waterfall address. Verify current zoning with the CCSD Zoning Search before you rely on any school name."
           }
         },
         {
@@ -287,7 +284,7 @@
     <section class="section">
         <div class="container">
             <h2 style="text-align:center;margin-bottom:12px;">Interactive Map</h2>
-            <p style="text-align:center;color:var(--text-light);max-width:720px;margin:0 auto 24px;">Use the category filters to explore places near Waterfall. Map data is provided by Google when your API key is configured.</p>
+            <p style="text-align:center;color:var(--text-light);max-width:720px;margin:0 auto 24px;">Use the category filters to explore featured places near Waterfall.</p>
             <div data-amenity-map aria-label="Interactive map of amenities near Waterfall North Las Vegas"></div>
         </div>
     </section>
@@ -304,11 +301,11 @@
             </div>
             <div class="amenity-category-block">
                 <h2>Parks &amp; Recreation</h2>
-                <p>Inside Waterfall, residents enjoy HOA amenities including a resort-style pool, spa, fitness center, pickleball courts, and walking trails. Nearby, Aliante Nature Discovery Park (2627 Nature Park Dr) offers trails, playgrounds, and open space for families and active adults.</p>
+                <p>Inside Waterfall, residents enjoy HOA amenities including a resort-style pool, spa, fitness center, pickleball courts, and walking trails. Nearby, Aliante Nature Discovery Park (2627 Nature Park Dr) offers trails, playgrounds, and open space a short drive from the community.</p>
             </div>
             <div class="amenity-category-block">
                 <h2>Golf</h2>
-                <p>Aliante Golf Club (7101 Aliante Pkwy) is a public course with practice facilities close to Waterfall—popular with retirees and weekend players who want convenient tee times in North Las Vegas.</p>
+                <p>Aliante Golf Club (3100 W Elkhorn Rd) is a public course with practice facilities close to Waterfall—convenient tee times in North Las Vegas for residents who golf locally.</p>
             </div>
             <div class="amenity-category-block">
                 <h2>Healthcare</h2>
@@ -320,7 +317,7 @@
             </div>
             <div class="amenity-category-block">
                 <h2>Schools</h2>
-                <p>Waterfall families typically look to Clark County School District zoned schools including Triggs Elementary School (7330 W Gowan Rd), Cadwallader Middle School (7457 W Azure Dr), and Canyon Springs High School (350 E Alexander Rd). Always verify school zoning for a specific property address with CCSD.</p>
+                <p>Which CCSD schools are assigned to Waterfall addresses? Assignments depend on your exact street address in the 89085 area. Verify with the <a href="https://zoning.ccsd.net/" target="_blank" rel="noopener noreferrer">CCSD Zoning Search</a> before you make a decision based on school boundaries.</p>
             </div>
             <div class="amenity-category-block">
                 <h2>Commute &amp; Regional Access</h2>
@@ -360,8 +357,8 @@
                 <p>Aliante Golf Club on Aliante Parkway is a public course and practice facility near the Waterfall community.</p>
             </div>
             <div class="faq-item">
-                <h3>What schools serve Waterfall?</h3>
-                <p>Waterfall is commonly associated with Triggs Elementary School, Cadwallader Middle School, and Canyon Springs High School in the Clark County School District; confirm zoning for a specific address.</p>
+                <h3>Which CCSD schools are assigned to Waterfall addresses?</h3>
+                <p>School assignments depend on your exact Waterfall address. Verify current zoning with the <a href="https://zoning.ccsd.net/" target="_blank" rel="noopener noreferrer">CCSD Zoning Search</a>.</p>
             </div>
             <div class="faq-item">
                 <h3>How do I get to Harry Reid International Airport from Waterfall?</h3>
