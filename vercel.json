@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": null,
+  "buildCommand": "node scripts/write-maps-runtime-config.js",
   "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
@@ -23,7 +23,6 @@
     { "source": "/homes", "destination": "/buy", "permanent": true },
     { "source": "/homes-for-sale", "destination": "/buy", "permanent": true },
     { "source": "/buy-a-home", "destination": "/buy", "permanent": true },
-    { "source": "/amenities", "destination": "/neighborhood", "permanent": true },
     { "source": "/community", "destination": "/neighborhood", "permanent": true },
     { "source": "/waterfall", "destination": "/neighborhood", "permanent": true },
     { "source": "/faq", "destination": "/#faq", "permanent": true },

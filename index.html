@@ -226,6 +226,7 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <link rel="preload" href="https://assets.calendly.com/assets/external/widget.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css"></noscript>
+    <link rel="stylesheet" href="/css/amenity-map.css">
     
     <style>
         :root {
@@ -1582,6 +1583,7 @@
                 <li class="nav-dropdown">
                     <a href="#" class="dropdown-toggle">Resources <i class="fas fa-chevron-down"></i></a>
                     <ul class="dropdown-menu">
+                        <li><a href="/amenities">Nearby Amenities</a></li>
                         <li><a href="/schools">Schools</a></li>
                         <li><a href="/market-report">Market Report</a></li>
                         <li><a href="/first-time-buyers">First-Time Buyers</a></li>
@@ -1796,6 +1798,20 @@
                     <h3>Walking Trails</h3>
                     <p>Scenic paths throughout the community for walking and jogging</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Nearby Map -->
+    <section class="nearby-map-section section-alt" id="nearby" style="padding: 80px 0; background: var(--bg-light);">
+        <div class="container">
+            <div class="section-header">
+                <h2>Life Near Waterfall</h2>
+                <p>Grocery, dining, parks, healthcare, and schools around North Las Vegas 89085—explore what is near the community before you tour homes.</p>
+            </div>
+            <div data-amenity-map data-compact="true" aria-label="Map of amenities near Waterfall North Las Vegas"></div>
+            <div class="amenity-map-explore-link">
+                <a href="/amenities">Open the full Nearby Amenities page</a>
             </div>
         </div>
     </section>
@@ -2133,6 +2149,7 @@
                         <li><a href="/buy">Buy a Home</a></li>
                         <li><a href="/sell">Sell Your Home</a></li>
                         <li><a href="/neighborhood">Neighborhood Guide</a></li>
+                        <li><a href="/amenities">Nearby Amenities</a></li>
                         <li><a href="/market-report">Market Report</a></li>
                         <li><a href="/contact">Contact</a></li>
                     </ul>
@@ -2228,5 +2245,8 @@
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
     <script type="text/javascript">window.onload = function() { Calendly.initBadgeWidget({ url: 'https://calendly.com/drjanduffy/appointment', text: 'Schedule time with Dr. Jan Duffy', color: '#1e3a5f', textColor: '#ffffff', branding: false }); }</script>
     <!-- Calendly badge widget end -->
+    <script src="/js/maps-runtime-config.js" defer></script>
+    <script src="/js/amenity-map-config.js" defer></script>
+    <script src="/js/amenity-map.js" defer></script>
 </body>
 </html>
