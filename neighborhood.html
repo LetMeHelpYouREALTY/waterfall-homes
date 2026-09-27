@@ -165,6 +165,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/amenity-map.css">
     <style>
         :root {
             --primary: #1e3a5f;
@@ -302,6 +303,7 @@
                 <li class="nav-dropdown">
                     <a href="#" class="dropdown-toggle">Resources <i class="fas fa-chevron-down"></i></a>
                     <ul class="dropdown-menu">
+                        <li><a href="/amenities">Nearby Amenities</a></li>
                         <li><a href="/schools">Schools</a></li>
                         <li><a href="/market-report">Market Report</a></li>
                         <li><a href="/first-time-buyers">First-Time Buyers</a></li>
@@ -578,6 +580,17 @@
         </div>
     </section>
 
+    <section class="section section-alt nearby-map-section">
+        <div class="container">
+            <h2 style="text-align:center;margin-bottom:12px;">What's Near Waterfall</h2>
+            <p style="text-align:center;color:var(--text-light);max-width:720px;margin:0 auto 24px;">Filter the map by category to see restaurants, grocery, parks, healthcare, and more around the 89085 area.</p>
+            <div data-amenity-map data-compact="true" aria-label="Interactive amenities map near Waterfall"></div>
+            <div class="amenity-map-explore-link">
+                <a href="/amenities">Full Nearby Amenities guide &amp; FAQ</a>
+            </div>
+        </div>
+    </section>
+
     <section class="section">
         <div class="container">
             <div class="content-wrapper">
@@ -674,6 +687,7 @@
                         <li><a href="/buy">Buy a Home</a></li>
                         <li><a href="/sell">Sell Your Home</a></li>
                         <li><a href="/neighborhood">Neighborhood Guide</a></li>
+                        <li><a href="/amenities">Nearby Amenities</a></li>
                         <li><a href="/market-report">Market Report</a></li>
                         <li><a href="/contact">Contact</a></li>
                     </ul>
@@ -682,6 +696,7 @@
                     <h4>Resources</h4>
                     <ul>
                         <li><a href="/about">About Dr. Duffy</a></li>
+                        <li><a href="/amenities">Nearby Amenities</a></li>
                         <li><a href="/schools">Schools</a></li>
                         <li><a href="/first-time-buyers">First-Time Buyers</a></li>
                         <li><a href="/relocation">Relocation Guide</a></li>
@@ -710,5 +725,8 @@
     <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
     <script type="text/javascript">window.onload = function() { Calendly.initBadgeWidget({ url: 'https://calendly.com/drjanduffy/appointment', text: 'Schedule time with Dr. Jan Duffy', color: '#1e3a5f', textColor: '#ffffff', branding: false }); }</script>
     <!-- Calendly badge widget end -->
+    <script src="/js/maps-runtime-config.js" defer></script>
+    <script src="/js/amenity-map-config.js" defer></script>
+    <script src="/js/amenity-map.js" defer></script>
 </body>
 </html>
