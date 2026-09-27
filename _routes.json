@@ -5,12 +5,7 @@
     "/assets/*",
     "/css/*",
     "/js/*",
-    "/images/*"
-  ],
-  "routes": [
-    {
-      "pattern": "/.netlify/functions/submit-to-fub",
-      "function": "submit-to-fub"
-    }
+    "/images/*",
+    "/api/*"
   ]
 }
