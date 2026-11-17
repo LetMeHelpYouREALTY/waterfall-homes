@@ -1,0 +1,191 @@
+/* Interactive amenity map widget — Waterfall Homes */
+.amenity-map-root {
+  --am-map-height: 420px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.amenity-map-root[data-compact="true"] {
+  --am-map-height: 360px;
+}
+
+.amenity-map-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.amenity-map-filters [role="tablist"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.amenity-map-filter-btn {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border, #e5e7eb);
+  background: #fff;
+  color: var(--text, #1a1a1a);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.amenity-map-filter-btn:hover,
+.amenity-map-filter-btn:focus-visible {
+  border-color: var(--primary, #1e3a5f);
+  outline: 2px solid var(--accent, #c9a227);
+  outline-offset: 2px;
+}
+
+.amenity-map-filter-btn[aria-selected="true"] {
+  background: var(--primary, #1e3a5f);
+  border-color: var(--primary, #1e3a5f);
+  color: #fff;
+}
+
+.amenity-map-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: var(--am-map-height);
+  min-height: var(--am-map-height);
+  background: #e2e8f0;
+}
+
+.amenity-map-canvas,
+.amenity-map-fallback-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.amenity-map-status {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: var(--text-light, #6b7280);
+  background: #fff;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.amenity-map-static-list {
+  padding: 16px;
+  background: #fff;
+  border-top: 1px solid var(--border, #e5e7eb);
+}
+
+.amenity-map-static-list h3 {
+  font-size: 1rem;
+  margin: 0 0 12px;
+  font-family: inherit;
+  color: var(--primary-dark, #0f1f33);
+}
+
+.amenity-map-static-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .amenity-map-static-list ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.amenity-map-static-list li {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.amenity-map-static-list .place-name {
+  font-weight: 600;
+  color: var(--primary-dark, #0f1f33);
+}
+
+.amenity-map-static-list .place-meta {
+  color: var(--text-light, #6b7280);
+}
+
+.amenity-map-explore-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.amenity-map-explore-link a {
+  font-weight: 600;
+  color: var(--primary, #1e3a5f);
+}
+
+.amenity-map-explore-link a:hover {
+  text-decoration: underline;
+}
+
+.nearby-map-section .section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.nearby-map-section .section-header h2 {
+  margin-bottom: 12px;
+}
+
+.nearby-map-section .section-header p {
+  color: var(--text-light, #6b7280);
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.amenity-category-block {
+  margin-bottom: 48px;
+}
+
+.amenity-category-block h2 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+}
+
+.amenity-category-block p {
+  color: var(--text-light, #6b7280);
+}
+
+.amenity-commute-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.amenity-commute-card {
+  background: var(--bg-light, #f8fafc);
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.amenity-commute-card strong {
+  display: block;
+  font-size: 1.125rem;
+  color: var(--primary, #1e3a5f);
+  margin-bottom: 4px;
+}
+
+.amenity-commute-card span {
+  font-size: 0.875rem;
+  color: var(--text-light, #6b7280);
+}

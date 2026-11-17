@@ -26,9 +26,15 @@
    </url>
    <url>
       <loc>https://www.waterfallhomesnorthlasvegas.com/neighborhood</loc>
-      <lastmod>2026-01-29</lastmod>
+      <lastmod>2026-09-27</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://www.waterfallhomesnorthlasvegas.com/amenities</loc>
+      <lastmod>2026-09-27</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.85</priority>
    </url>
    <url>
       <loc>https://www.waterfallhomesnorthlasvegas.com/schools</loc>
